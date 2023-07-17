@@ -16,8 +16,10 @@
     "xterm-addon-fit": "^0.7.0"
   },
   "devDependencies": {
-    "rollup": "^3.26.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0"
+    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.3",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "rollup": "^3.26.3"
   }
 }
