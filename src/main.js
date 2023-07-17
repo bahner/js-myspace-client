@@ -6,7 +6,7 @@ terminal.open(document.getElementById('terminal-container'));
 fitAddon.fit();
 
 // Load libp2p
-var createLibp2pNode = require('./libp2p.js');
+var createLibp2pNode = require('./rendezvous.js'); // Renamed from ./libp2p.js
 var topic = 'myspace'; // This is now your default topic
 var rendezvousString = 'myspace'; // This is now your default rendezvous string
 var node;
