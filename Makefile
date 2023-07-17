@@ -15,4 +15,5 @@ stop:
 	docker-compose down
 
 start: stop build
-	docker-compose up
+	#docker-compose up
+	npm start
