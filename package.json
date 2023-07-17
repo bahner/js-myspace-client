@@ -5,8 +5,9 @@
   "main": "src/main.js",
   "scripts": {
     "start": "http-server public",
-    "build": "babel src/index.js --out-file public/bundle.js --copy-files --plugins=@babel/plugin-transform-modules-commonjs"
+    "build": "rollup -c rollup.config.mjs"
   },
+  "type": "module",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^9.1.0",
     "http-server": "^14.1.1",
@@ -15,9 +16,8 @@
     "xterm-addon-fit": "^0.7.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.22.9",
-    "@babel/plugin-transform-modules-commonjs": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.9",
-    "@babel/preset-env": "^7.22.9"
+    "rollup": "^3.26.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
   }
 }
