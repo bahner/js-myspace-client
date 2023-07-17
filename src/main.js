@@ -5,10 +5,10 @@ terminal.loadAddon(fitAddon);
 terminal.open(document.getElementById('terminal-container'));
 fitAddon.fit();
 
-// Load libp2p
-var createLibp2pNode = require('./rendezvous.js'); // Renamed from ./libp2p.js
-var topic = 'myspace'; // This is now your default topic
-var rendezvousString = 'myspace'; // This is now your default rendezvous string
+// Load createLibp2pNode from rendezvous.js
+var createLibp2pNode = require('./gossipsub.js');
+var topic = 'myspace';
+var rendezvousString = 'myspace';
 var node;
 
 // Handle the input field
@@ -34,3 +34,4 @@ inputField.addEventListener('keydown', async function(event) {
         inputField.value = '';
     }
 });
+
