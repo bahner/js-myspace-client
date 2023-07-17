@@ -2,6 +2,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
+import alias from '@rollup/plugin-alias';
 
 export default {
   input: 'src/index.js',
@@ -10,11 +11,21 @@ export default {
     format: 'iife',
   },
   plugins: [
-    resolve({ browser: true }), 
+    alias({
+      entries: [
+        { find: 'events', replacement: 'events' }
+      ]
+    }),
+    resolve({
+      browser: true,
+      preferBuiltins: false,
+      dedupe: ['events'],
+    }),
     commonjs(),
     babel({
       exclude: 'node_modules/**',
-      presets: ['@babel/preset-env']
+      presets: ['@babel/preset-env'],
+      babelHelpers: 'bundled'
     }),
   ],
 };
