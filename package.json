@@ -1,25 +1,26 @@
 {
   "name": "myspace-client",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple myspace client application",
   "main": "index.js",
   "scripts": {
     "start": "http-server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "browserify src/*.js -o public/bundle.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "http-server": "^14.1.1",
     "libp2p": "^0.45.9",
     "libp2p-gossipsub": "^0.13.0",
     "libp2p-kad-dht": "^0.28.6",
     "libp2p-mplex": "^0.10.7",
+    "libp2p-noise": "^4.0.0",
     "libp2p-secio": "^0.13.1",
     "libp2p-websockets": "^0.16.2",
     "standard": "^17.1.0",
     "xterm": "^5.2.1",
     "xterm-addon-fit": "^0.7.0"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.0"
   }
 }
