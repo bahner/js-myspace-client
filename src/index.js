@@ -2,11 +2,12 @@ import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
 import { bootstrap } from '@libp2p/bootstrap'
 import { createLibp2p } from 'libp2p'
-// import { filters } from '@libp2p/websockets/filters'
-// import { gossipsub } from '@chainsafe/libp2p-gossipsub'
-// import {noise} from '@chainsafe/libp2p-noise'
+import { filters } from '@libp2p/websockets/filters'
+import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import {noise} from '@chainsafe/libp2p-noise'
+// tcp module fails miserably with webpack. I suspect it's not for the browser.
 // import { tcp } from '@libp2p/tcp'
-// import { websockets } from '@libp2p/websockets'
+import { websockets } from '@libp2p/websockets'
 
 async function init() {
   // Initialize libp2p
