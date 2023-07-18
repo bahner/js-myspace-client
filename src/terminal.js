@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
-import { AttachAddon } from 'xterm-addon-attach';
+
+// AttachAddon doesn't work with WebSockets properly.
+// import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon } from 'xterm-addon-fit';
 import { Readline } from "xterm-readline";
 import { Terminal } from 'xterm';
@@ -7,7 +9,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links';
 
 let topicSocket;
 let xterm;
-let attachAddon;
+// let attachAddon;
 let fitAddon;
 let readlineAddon;
 
@@ -17,40 +19,21 @@ const options = {
 };
 
 export function initializeTerminal(socketUrl) {
-  return new Promise((resolve, reject) => {
-    if (topicSocket) {
-      topicSocket.close();
-    }
 
-    xterm = new Terminal(options);
-    topicSocket = new WebSocket(socketUrl);
+  xterm = new Terminal(options);
+  topicSocket = generateTopicSocket(socketUrl);
 
-    topicSocket.onopen = function (event) {
-      console.debug("WebSocket is open now.");
+  fitAddon = new FitAddon();
+  xterm.loadAddon(fitAddon);
 
-      fitAddon = new FitAddon();
-      xterm.loadAddon(fitAddon);
+  xterm.loadAddon(new WebLinksAddon());
 
-      xterm.loadAddon(new WebLinksAddon());
+  readlineAddon = new Readline();
+  xterm.loadAddon(readlineAddon); // Load readlineAddon into xterm
 
-      readlineAddon = new Readline();
-      xterm.loadAddon(readlineAddon); // Load readlineAddon into xterm
+  xterm.open(document.getElementById('terminal'));
 
-      xterm.open(document.getElementById('terminal'));
-
-      // Resolve the promise with the xterm, fitAddon, and readlineAddon instances
-      resolve({ xterm, fitAddon, readlineAddon });
-    };
-
-    topicSocket.onclose = function (event) {
-      console.debug("WebSocket is closed now.", event);
-    };
-
-    topicSocket.onerror = function (event) {
-      console.log("WebSocket encountered error: ", event);
-      reject(event);  // Reject the promise if there's an error
-    };
-  });
+  return { xterm, fitAddon };
 }
 
 export function log(txt) {
@@ -65,6 +48,36 @@ export function readLine() {
 
 function processLine(text) {
   readlineAddon.println("you entered: " + text);
-  topicSocket.send(text);
-  setTimeout(readLine);
+  if(topicSocket.readyState === WebSocket.OPEN){
+    topicSocket.send(text);
+  }
+  setTimeout(readLine, 10); // Call readline again in 10ms
+}
+
+function generateTopicSocket(socketUrl) {
+  if (topicSocket) {
+    topicSocket.close();
+  }
+
+  topicSocket = new WebSocket(socketUrl);
+
+  topicSocket.onmessage = function (event) {
+    console.debug("WebSocket message received:", event);
+    xterm.writeln(event.data);
+  };
+
+  topicSocket.onopen = function (event) {
+    console.debug("WebSocket is open now.");
+  };
+
+  topicSocket.onclose = function (event) {
+    console.debug("WebSocket is closed now.", event);
+  };
+
+  topicSocket.onerror = function (event) {
+    console.log("WebSocket encountered error: ", event);
+    // Handle error appropriately if applicable
+  };
+  
+  return topicSocket;
 }

@@ -4,7 +4,6 @@ import { attachListeners } from './listeners.js';
 import { startLibp2p } from './libp2p.js';
 
 const topicBaseUrl = 'ws://localhost:5002/api/v0/topics';
-// const topicBaseUrl = 'ws://localhost:12345/api/v0/topics';
 const defaultTopic = 'myspace';
 
 function getTopicUrl(topic) {
@@ -15,20 +14,17 @@ function setTopic(topic) {
   const url = getTopicUrl(topic);
   return initializeTerminal(url);
 }
-async function main() {
-  const { xterm, fitAddon} = await setTopic(defaultTopic);
+function main() {
+  const { xterm, fitAddon} = setTopic(defaultTopic);
   
   fitAddon.fit();
   
   window.onresize = (evt) => {
     fitAddon.fit()
   }
-  // function updateTerminal(txt) {
-  //   log(txt, log);
-  // }
 
-  // const libp2p = await startLibp2p();
-  // // attachListeners(libp2p, updateTerminal);
+  const libp2p = startLibp2p();
+  // attachListeners(libp2p, updateTerminal);
 
   // log('libp2p started!');
   // log(`libp2p id is ${libp2p.peerId.toString()}`);
