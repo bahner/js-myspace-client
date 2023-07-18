@@ -62,3 +62,18 @@ export function subscribeToTopic(node, callback) {
     callback(chatMessage);
   });
 }
+async function changeTopic(node, newTopic) {
+  // Assuming `currentTopic` is maintained somewhere
+  await node.pubsub.unsubscribe(currentTopic);
+
+  // Subscribe to new topic
+  await node.pubsub.subscribe(newTopic, (message) => {
+    // You may need to adjust this depending on the message structure
+    terminal.writeln(`\n< ${message.data.toString()}`);
+    terminal.write('> ');
+  });
+
+  currentTopic = newTopic;
+  terminal.writeln(`\nTopic changed to ${newTopic}`);
+  terminal.write('> ');
+}

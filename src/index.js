@@ -1,6 +1,7 @@
+import { changeTopic, createNode, publishMessage, subscribeToTopic } from './libp2p';
+
 import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
-import { createNode, publishMessage, subscribeToTopic, changeTopic } from './libp2p';
 
 async function init() {
   // Initialize libp2p node
