@@ -1,79 +1,60 @@
-import { all } from '@libp2p/websockets/filters'
+/* eslint-disable no-console */
+
+import { webRTC, webRTCDirect } from '@libp2p/webrtc'
+
+import { bootstrap } from '@libp2p/bootstrap'
+import { circuitRelayTransport } from 'libp2p/circuit-relay'
 import { createLibp2p } from 'libp2p'
-import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import { identifyService } from 'libp2p/identify'
+import { kadDHT } from '@libp2p/kad-dht'
 import { mplex } from '@libp2p/mplex'
 import { noise } from '@chainsafe/libp2p-noise'
-import { webRTCStar } from '@libp2p/webrtc-star'
 import { webSockets } from '@libp2p/websockets'
 import { webTransport } from '@libp2p/webtransport'
-
-const WebRtc = webRTCStar()
-const topic = 'myspace'
-
-const gossipsub_options = {
-  emitSelf: true,
-  gossipIncoming: true,
-  allowPublishToZeroPeers: true,
-}
+import { yamux } from '@chainsafe/libp2p-yamux'
 
 const modules = {
+  // transports allow us to dial peers that support certain types of addresses
   transports: [
-    WebRtc.transport,
-    webSockets({ filter: all }),
-    webTransport({ filter: all }),
+    webSockets(),
+    webTransport(),
+    webRTC(),
+    webRTCDirect(),
+    circuitRelayTransport({
+      // use content routing to find a circuit relay server we can reserve a
+      // slot on
+      discoverRelays: 1
+    })
   ],
-  connectionEnryption: [noise],
-  streamMuxers: [mplex],
+  connectionEncryption: [noise()],
+  streamMuxers: [yamux(), mplex()],
   peerDiscovery: [
-    WebRtc.discovery,
+    bootstrap({
+      list: [
+        '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
+        '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
+        '/dnsaddr/bootstrap.libp2p.io/p2p/QmZa1sAxajnQjVM8WjWXoMbmPd7NsWhfKsPkErzpm9wGkp',
+        '/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa',
+        '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'
+      ]
+    })
   ],
   services: {
-    pubsub: gossipsub(gossipsub_options)
+    // the identify service is used by the DHT and the circuit relay transport
+    // to find peers that support the relevant protocols
+    identify: identifyService(),
+
+    // the DHT is used to find circuit relay servers we can reserve a slot on
+    dht: kadDHT({
+      // browser node ordinarily shouldn't be DHT servers
+      clientMode: true
+    })
   }
 }
 
-export async function createNode() {
-  console.log("Creating libp2p node");
-  const node = await createLibp2p(modules);
+export async function startLibp2p() {
+  // Create our libp2p node
+  const libp2p = await createLibp2p(modules)
 
-  console.log("Discovering peers");
-  node.addEventListener('peer:discovery', function (peerId) {
-    console.log('found peer: ', peerId.toB58String())
-  })
-
-  console.log("Connecting to peers");
-  node.addEventListener('peer:connect', (peerId) => {
-    console.log('connected to peer:', peerId.toB58String())
-  })
-
-  console.log("Starting libp2p node");
-  await node.start();
-
-  return node;
-}
-
-export function publishMessage(node, message) {
-  node.services.pubsub.publish(topic, new TextEncoder().encode(message));
-}
-
-export function subscribeToTopic(node, callback) {
-  node.services.pubsub.subscribe(topic, (message) => {
-    const chatMessage = new TextDecoder().decode(message.data);
-    callback(chatMessage);
-  });
-}
-export async function changeTopic(node, newTopic) {
-  // Assuming `currentTopic` is maintained somewhere
-  await node.pubsub.unsubscribe(currentTopic);
-
-  // Subscribe to new topic
-  await node.pubsub.subscribe(newTopic, (message) => {
-    // You may need to adjust this depending on the message structure
-    terminal.writeln(`\n< ${message.data.toString()}`);
-    terminal.write('> ');
-  });
-
-  currentTopic = newTopic;
-  terminal.writeln(`\nTopic changed to ${newTopic}`);
-  terminal.write('> ');
+  return libp2p
 }

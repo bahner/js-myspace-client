@@ -1,68 +1,57 @@
+/* eslint-disable no-console */
+// Import xterm.js and its required addons
 import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
-import { changeTopic, createNode, publishMessage, subscribeToTopic } from './libp2p';
+import { startLibp2p } from './libp2p.js'
 
-async function init() {
-  // Initialize libp2p node
-  const node = await createNode();
+async function main() {
 
-  // Initialize xterm.js
+  const something = document.getElementById('terminal')
+  // Create a new xterm.js Terminal instance
   const terminal = new Terminal();
+
+  // Create a FitAddon instance to automatically fit the terminal within its container
   const fitAddon = new FitAddon();
-  terminal.loadAddon(fitAddon);
-  terminal.open(document.getElementById('terminal'));
-  fitAddon.fit();
+  // terminal.loadAddon(fitAddon);
 
-  terminal.writeln('Welcome to the chat terminal!');
-  terminal.writeln('Use /say <message>, /shout <message>, or /change topic <topic>');
+  // Attach the xterm.js Terminal to an existing DOM element
+  // terminal.open(document.getElementById('terminal'));
 
-  terminal.onKey(async ({ key, domEvent }) => {
-    const printable = !domEvent.altKey && !domEvent.altGraphKey && !domEvent.ctrlKey && !domEvent.metaKey;
+  // UI update functions using xterm.js
+  function log(txt) {
+    something.textContent += ''
+    console.info(txt);
+    something.textContent += `${txt.trim()}\n`
+    // fitAddon.fit();
+  }
 
-    // Handle enter
-    if (domEvent.keyCode === 13) {
-      const input = terminal.buffer.active.cursorY - 1;
-      const line = terminal.buffer.active.getLine(input);
-      const message = line.translateToString(true);
+  const libp2p = await startLibp2p()
 
-      terminal.clear();
-      terminal.writeln('Welcome to the chat terminal!');
-      terminal.writeln('Use /say <message>, /shout <message>, or /change topic <topic>');
+  // Listen for new peers
+  libp2p.addEventListener('peer:discovery', (evt) => {
+    const peerInfo = evt.detail;
+    log(`Found peer ${peerInfo.id.toString()}`);
 
-      if (message.startsWith('/say ')) {
-        const text = message.substring(5);
-        await publishMessage(node, text);
-      } else if (message.startsWith('/shout ')) {
-        const text = message.substring(7).toUpperCase();
-        await publishMessage(node, text);
-      } else if (message.startsWith('/change topic ')) {
-        const topic = message.substring(14);
-        await changeTopic(node, topic);
-      } else {
-        await publishMessage(node, message);
-      }
-    } 
-    // Handle backspace
-    else if (domEvent.keyCode === 8) {
-      // Do not delete the prompt
-      if (terminal.buffer.active.cursorX > 2) {
-        terminal.write('\b \b');
-      }
-    } 
-    // Handle printable keys
-    else if (printable) {
-      terminal.write(key);
-    }
+    // Dial them when we discover them
+    libp2p.dial(peerInfo.id).catch(err => {
+      log(`Could not dial ${peerInfo.id.toString()}`, err);
+    });
   });
 
-  terminal.writeln('');
-  terminal.write('> ');
-
-  // Subscribe to the topic
-  subscribeToTopic(node, (chatMessage) => {
-    terminal.writeln(chatMessage);
-    terminal.write('> ');
+  // Listen for new connections to peers
+  libp2p.addEventListener('peer:connect', (evt) => {
+    const peerId = evt.detail;
+    log(`Connected to ${peerId.toString()}`);
   });
+
+  // Listen for peers disconnecting
+  libp2p.addEventListener('peer:disconnect', (evt) => {
+    const peerId = evt.detail;
+    log(`Disconnected from ${peerId.toString()}`);
+  });
+
+  log('libp2p started!');
+  log(`libp2p id is ${libp2p.peerId.toString()}`);
 }
 
-init().catch(console.error);
+main()
