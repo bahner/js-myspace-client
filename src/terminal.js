@@ -6,6 +6,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { Readline } from "xterm-readline";
 import { Terminal } from 'xterm';
 import { WebLinksAddon } from 'xterm-addon-web-links';
+import { evalCommandLine } from './commands.js';
 
 let topicSocket;
 let xterm;
@@ -42,16 +43,17 @@ export function log(txt) {
 }
 
 export function readLine() {
-  readlineAddon.read(">")
+  readlineAddon.read("> ")
     .then(processLine);
 }
 
 function processLine(text) {
-  readlineAddon.println("you entered: " + text);
+  // readlineAddon.println("you entered: " + text);
   if(topicSocket.readyState === WebSocket.OPEN){
-    topicSocket.send(text);
+    const output = evalCommandLine(text, topicSocket);
+    readlineAddon.println(output);
   }
-  setTimeout(readLine, 10); // Call readline again in 10ms
+  setTimeout(readLine, 1000); // Call readline again in 1s
 }
 
 function generateTopicSocket(socketUrl) {
@@ -63,6 +65,7 @@ function generateTopicSocket(socketUrl) {
 
   topicSocket.onmessage = function (event) {
     console.debug("WebSocket message received:", event);
+    ev
     xterm.writeln(event.data);
   };
 
