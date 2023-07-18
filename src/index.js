@@ -6,6 +6,7 @@ import { filters } from '@libp2p/websockets/filters'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
 import {noise} from '@chainsafe/libp2p-noise'
+import { tcp } from '@libp2p/tcp'
 // tcp module fails miserably with webpack. I suspect it's not for the browser.
 // import { tcp } from '@libp2p/tcp'
 import { webSockets } from '@libp2p/websockets'
@@ -13,30 +14,18 @@ import { webSockets } from '@libp2p/websockets'
 async function init() {
   // Initialize libp2p
   const node = await createLibp2p({
-    modules: {
-      transport: [webSockets],
+      transport: [webSockets, tcp],
       connectionEnryption: [noise],
       streamMuxer: [mplex],
-      pubsub: Gossipsub,
-      peerDiscovery: [Bootstrap]
-    },
-    config: {
-      peerDiscovery: {
-        bootstrap: {
-          enabled: true,
-          list: ['bootstrapPeerMultiaddress1', 'bootstrapPeerMultiaddress2'] // replace these with actual bootstrap peers
-        }
-      }
-    }
   });
 
   await node.start();
 
-  // Subscribe to a topic
-  node.pubsub.subscribe('chat', (message) => {
-    const chatMessage = new TextDecoder().decode(message.data);
-    terminal.writeln(chatMessage);
-  });
+  // // Subscribe to a topic
+  // node.pubsub.subscribe('chat', (message) => {
+  //   const chatMessage = new TextDecoder().decode(message.data);
+  //   terminal.writeln(chatMessage);
+  // });
 
   // Initialize xterm.js
   const terminal = new Terminal();
