@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { bootstrapDiscovery, mdnsDiscovery, pubsubPeer as pubSubPeerDiscovery } from './libp2p/discovery.js'
+import { bootstrapDiscovery, mdnsDiscovery } from './libp2p/discovery.js'
 import { gossipsubService, identify as identifyService, kadDHTService } from './libp2p/services.js'
 import { webRTC, webRTCDirect } from '@libp2p/webrtc'
 
@@ -29,8 +29,7 @@ const modules = {
   streamMuxers: [yamux(), mplex()],
   peerDiscovery: [
     bootstrapDiscovery,
-    mdnsDiscovery,
-    pubSubPeerDiscovery
+    mdnsDiscovery
   ],
   services: {
     // the identify service is used by the DHT and the circuit relay transport
