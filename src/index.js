@@ -1,6 +1,6 @@
 import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
-import { createNode, publishMessage, subscribeToTopic } from './libp2p';
+import { createNode, publishMessage, subscribeToTopic, changeTopic } from './libp2p';
 
 async function init() {
   // Initialize libp2p node
@@ -13,20 +13,55 @@ async function init() {
   terminal.open(document.getElementById('terminal'));
   fitAddon.fit();
 
-  // Initialize input functionality
-  const inputField = document.createElement('input');
-  inputField.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      const message = inputField.value;
-      publishMessage(node, message);
-      inputField.value = '';
+  terminal.writeln('Welcome to the chat terminal!');
+  terminal.writeln('Use /say <message>, /shout <message>, or /change topic <topic>');
+
+  terminal.onKey(async ({ key, domEvent }) => {
+    const printable = !domEvent.altKey && !domEvent.altGraphKey && !domEvent.ctrlKey && !domEvent.metaKey;
+
+    // Handle enter
+    if (domEvent.keyCode === 13) {
+      terminal.writeln('');
+
+      const input = terminal.buffer.active.cursorY - 1;
+      const line = terminal.buffer.active.getLine(input);
+      const message = line.translateToString(true);
+
+      if (message.startsWith('/say ')) {
+        const text = message.substring(5);
+        await publishMessage(node, text);
+      } else if (message.startsWith('/shout ')) {
+        const text = message.substring(7).toUpperCase();
+        await publishMessage(node, text);
+      } else if (message.startsWith('/change topic ')) {
+        const topic = message.substring(14);
+        await changeTopic(node, topic);
+      } else {
+        terminal.writeln(`Unknown command: ${message}`);
+      }
+
+      terminal.write('> ');
+    } 
+    // Handle backspace
+    else if (domEvent.keyCode === 8) {
+      // Do not delete the prompt
+      if (terminal.buffer.active.cursorX > 2) {
+        terminal.write('\b \b');
+      }
+    } 
+    // Handle printable keys
+    else if (printable) {
+      terminal.write(key);
     }
   });
-  document.body.appendChild(inputField);
+
+  terminal.writeln('');
+  terminal.write('> ');
 
   // Subscribe to the topic
   subscribeToTopic(node, (chatMessage) => {
-    terminal.writeln(chatMessage);
+    terminal.writeln(`\n< ${chatMessage}`);
+    terminal.write('> ');
   });
 }
 
