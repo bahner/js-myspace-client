@@ -17,9 +17,7 @@ const xterm = new Terminal({
 const fitAddon = new FitAddon();
 const readlineAddon = new Readline();
 
-let topic
-
-export function initializeTerminal(socketUrl) {
+export function initializeTerminal() {
 
   xterm.loadAddon(fitAddon);
   xterm.loadAddon(new WebLinksAddon());
@@ -32,7 +30,7 @@ export function initializeTerminal(socketUrl) {
     fitAddon.fit()
   }
 
-  return { xterm, fitAddon };
+  return xterm;
 }
 
 export function readLine(ts, topic) {
