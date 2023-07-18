@@ -1,7 +1,6 @@
-import { initializeTerminal, log } from './terminal.js';
-
 import { attachListeners } from './listeners.js';
-import { defaultTopic } from './constants.js';
+import { defaultTopic } from './config.js';
+import { initializeTerminal } from './terminal.js';
 import { readLine } from './terminal.js';
 import { startLibp2p } from './libp2p.js';
 
@@ -30,12 +29,11 @@ async function main() {
   pubsub.publish(defaultTopic, new TextEncoder().encode('banana'))
   // attachListeners(libp2p, updateTerminal);
 
-  log('libp2p started!');
-  log(`libp2p id is ${libp2p.peerId.toString()}`);
+  xterm.writeln('libp2p started!');
   xterm.writeln(`libp2p id is ${libp2p.peerId.toString()}`);
-  xterm.writeln(`Hello ${defaultTopic}!\n`);
+  xterm.writeln(`Current topic is "${defaultTopic}"!\n`);
 
-  readLine();
+  readLine(pubsub, defaultTopic, xterm);
 
 }
 
