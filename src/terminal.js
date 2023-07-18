@@ -25,6 +25,12 @@ export function initializeTerminal(socketUrl) {
   xterm.loadAddon(new WebLinksAddon());
   xterm.loadAddon(readlineAddon);
   xterm.open(document.getElementById('terminal'));
+  
+  fitAddon.fit();
+
+  window.onresize = (evt) => {
+    fitAddon.fit()
+  }
 
   return { xterm, fitAddon };
 }
