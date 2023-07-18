@@ -1,7 +1,6 @@
-import { changeTopic, createNode, publishMessage, subscribeToTopic } from './libp2p';
-
 import { FitAddon } from 'xterm-addon-fit';
 import { Terminal } from 'xterm';
+import { changeTopic, createNode, publishMessage, subscribeToTopic } from './libp2p';
 
 async function init() {
   // Initialize libp2p node
@@ -22,11 +21,13 @@ async function init() {
 
     // Handle enter
     if (domEvent.keyCode === 13) {
-      terminal.writeln('');
-
       const input = terminal.buffer.active.cursorY - 1;
       const line = terminal.buffer.active.getLine(input);
       const message = line.translateToString(true);
+
+      terminal.clear();
+      terminal.writeln('Welcome to the chat terminal!');
+      terminal.writeln('Use /say <message>, /shout <message>, or /change topic <topic>');
 
       if (message.startsWith('/say ')) {
         const text = message.substring(5);
@@ -38,10 +39,8 @@ async function init() {
         const topic = message.substring(14);
         await changeTopic(node, topic);
       } else {
-        terminal.writeln(`Unknown command: ${message}`);
+        await publishMessage(node, message);
       }
-
-      terminal.write('> ');
     } 
     // Handle backspace
     else if (domEvent.keyCode === 8) {
@@ -61,7 +60,7 @@ async function init() {
 
   // Subscribe to the topic
   subscribeToTopic(node, (chatMessage) => {
-    terminal.writeln(`\n< ${chatMessage}`);
+    terminal.writeln(chatMessage);
     terminal.write('> ');
   });
 }

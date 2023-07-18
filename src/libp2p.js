@@ -62,7 +62,7 @@ export function subscribeToTopic(node, callback) {
     callback(chatMessage);
   });
 }
-async function changeTopic(node, newTopic) {
+export async function changeTopic(node, newTopic) {
   // Assuming `currentTopic` is maintained somewhere
   await node.pubsub.unsubscribe(currentTopic);
 
