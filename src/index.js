@@ -54,22 +54,25 @@
 //   log(`libp2p id is ${libp2p.peerId.toString()}`);
 // }
 
-import { initializeTerminal, log } from './terminal.js';
-
 import { attachListeners } from './listeners.js';
+import { initializeTerminal } from './terminal.js';
+import { log } from './utils.js';
 import { startLibp2p } from './libp2p.js';
 
 async function main() {
-  const something = document.getElementById('terminal');
   const { terminal, fitAddon } = initializeTerminal();
 
-  function updateTerminal(txt) {
-    log(txt, something);
-    fitAddon.fit();
+  const log_element = document.getElementById('log');
+  function updateLog(txt) {
+    log(txt, log_element);
   }
+  // function updateTerminal(txt) {
+  //   log(txt, terminal);
+  //   fitAddon.fit();
+  // }
 
   const libp2p = await startLibp2p();
-  attachListeners(libp2p, updateTerminal);
+  attachListeners(libp2p, updateLog);
 
   log('libp2p started!');
   log(`libp2p id is ${libp2p.peerId.toString()}`);
