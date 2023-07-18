@@ -15,7 +15,9 @@ module.exports = {
   resolve: {
     fallback: {
       path: false,
-      os: false
+      os: false,
+      dgram: false,
+      "buffer": require.resolve("buffer/")
     }
   },
   devServer: {

@@ -1,5 +1,23 @@
 import { bootstrap } from '@libp2p/bootstrap'
+import { defaultTopic } from '../constants.js'
 import { mdns } from '@libp2p/mdns'
+import {pubsubPeerDiscovery} from '@libp2p/pubsub-peer-discovery'
+
+// Custom topics
+const topics = [
+  `myApp._peer-discovery._p2p._pubsub`,
+  '_peer-discovery._p2p._pubsub',
+  '_p2p._pubsub',
+  '_pubsub',
+  defaultTopic
+]
+
+const pubsubPeerDiscoveryOptions = {      interval: 10000,
+  topics: topics,
+  listenOnly: false
+}
+
+export const pubsubPeer = pubsubPeerDiscovery(pubsubPeerDiscoveryOptions)
 
 export const bootstrapDiscovery = bootstrap({
     list: [
