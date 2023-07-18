@@ -12,6 +12,12 @@ module.exports = {
       template: path.resolve(__dirname, 'static/index.html'),
     }),
   ],
+  resolve: {
+    fallback: {
+      path: require.resolve('path-browserify'),
+      os: require.resolve('os-browserify/browser'),
+    }
+  },
   devServer: {
     static: {
       directory: path.join(__dirname, 'static'),
