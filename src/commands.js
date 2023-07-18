@@ -1,8 +1,10 @@
 import { evalTopic } from "./commands/topic.js";
+import { pubsub } from "./libp2p/pubsub.js";
+import { xterm } from "./terminal.js";
 
 const commandRegex = /^\/(\w+)\s*(.*)$/;
 
-export function evalCommand(input, ts) {
+export function evalCommand(input) {
     input = input.trim();
 
     // If input is empty, do nothing
@@ -12,7 +14,7 @@ export function evalCommand(input, ts) {
 
     // If it's not a command, publish the input to the topic
     if (!isCommand(input)) {
-        ts.publish(input);
+        pubsub.publish(input);
         return;
     }
 
@@ -21,7 +23,7 @@ export function evalCommand(input, ts) {
     // If it's a command, handle it
     switch (command) {
         case "topic":
-            return evalTopic(params, ts);
+            evalTopic(params);
         default:
             return "Error: unknown command";
     }

@@ -1,51 +1,54 @@
 /* eslint-disable no-console */
 
-import { evalCommand as evalCommandLine, isCommand as isCommandLine } from './commands.js';
+import { evalCommand, isCommand } from './commands.js';
 
-// AttachAddon doesn't work with WebSockets properly.
-// import { AttachAddon } from 'xterm-addon-attach';
 import { FitAddon } from 'xterm-addon-fit';
 import { Readline } from "xterm-readline";
 import { Terminal } from 'xterm';
 import { WebLinksAddon } from 'xterm-addon-web-links';
-import { defaultPrompt } from './config.js';
+import { config } from './config.js';
+import { libp2p } from './libp2p.js';
+import { pubsub } from './libp2p/pubsub.js';
 
-const xterm = new Terminal({
+export const xterm = new Terminal({
   cursorBlink: true,
   cursorStyle: 'underline'
 });
 const fitAddon = new FitAddon();
 const readlineAddon = new Readline();
 
-export function initializeTerminal() {
 
-  xterm.loadAddon(fitAddon);
-  xterm.loadAddon(new WebLinksAddon());
-  xterm.loadAddon(readlineAddon);
-  xterm.open(document.getElementById('terminal'));
-  
-  fitAddon.fit();
+xterm.loadAddon(fitAddon);
+xterm.loadAddon(new WebLinksAddon());
+xterm.loadAddon(readlineAddon);
+xterm.open(document.getElementById('terminal'));
 
-  window.onresize = (evt) => {
-    fitAddon.fit()
-  }
+fitAddon.fit();
 
-  return xterm;
+window.onresize = (evt) => {
+  fitAddon.fit()
 }
 
-export function readLine(ts, topic) {
-  topic = topic
-  readlineAddon.read(defaultPrompt)
-    .then((line) => processLine(line, ts));
+
+export function readLine() {
+
+  let prompt = config.getPrompt();
+
+  readlineAddon.read(prompt)
+    .then((line) => processLine(line));
 }
-function processLine(line, ts, topic) {
+
+function processLine(line) {
+
+  let topic = config.getTopic();
+
   line = line.trim();
   let type;
 
   if (line === '') {
     type = 'empty';
   }
-  else if (isCommandLine(line)) {
+  else if (isCommand(line)) {
     type = 'command';
   } else {
     type = 'message';
@@ -58,11 +61,24 @@ function processLine(line, ts, topic) {
       evalCommand(line);
       break;
     default:
-      ts.publish(topic, new TextEncoder().encode(line));
+      pubsub.publish(topic, new TextEncoder().encode(line));
       break;
   }
 
-//   const output = evalCommandLine(text);
-//   readlineAddon.println(output);
-  setTimeout(readLine, 1000); // Call readline again in 1s
+  xterm.writeln(type); // debug info
+  setTimeout(readLine(pubsub), 1000);
+}
+
+export function initTopicTerminal () {
+
+  let topic = config.getTopic();
+
+  pubsub.subscribe(topic)
+  pubsub.publish(topic, new TextEncoder().encode('banana'))
+  
+  xterm.clear();
+  xterm.writeln(`libp2p id is ${libp2p.peerId.toString()}`);
+  xterm.writeln(`Current topic is "${topic}"!\n`);
+  xterm.writeln('Hello World!');
+
 }

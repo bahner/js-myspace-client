@@ -1,3 +1,6 @@
+import { config } from "../config.js";
+import { initTopicTerminal } from "../terminal.js";
+
 export function evalTopic(params) {
     if (params === null) {
         return "Error: no topic specified";
@@ -8,9 +11,9 @@ export function evalTopic(params) {
     }
 
     const topic = params[0];
-    const url = getTopicUrl(topic);
- 
-    setTopic(topic);
+    config.setTopic(topic);
+    
+    initTopicTerminal();
  
     return `Topic set to ${topic}`;
 }

@@ -42,7 +42,7 @@ const modules = {
 }
 
 export async function startLibp2p() {
-  // Create our libp2p node
+  
   const libp2p = await createLibp2p(modules)
 
   return libp2p
@@ -68,3 +68,5 @@ export function attachLibp2pListeners(libp2p, log) {
     log(`Disconnected from ${peerId.toString()}`);
   });
 }
+
+export const libp2p = await startLibp2p();
