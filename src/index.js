@@ -6,10 +6,9 @@ import { startLibp2p } from './libp2p.js';
 
 function main() {
   // Topic is set in the terminal which uses it to connect to the topic socket
-  const { xterm, fitAddon} = setTopic(defaultTopic);
-  
+  const { xterm, fitAddon } = setTopic(defaultTopic);
+
   fitAddon.fit();
-  
   window.onresize = (evt) => {
     fitAddon.fit()
   }

@@ -22,7 +22,6 @@ const options = {
 export function initializeTerminal(socketUrl) {
 
   xterm = new Terminal(options);
-  topicSocket = generateTopicSocket(socketUrl);
 
   fitAddon = new FitAddon();
   xterm.loadAddon(fitAddon);
@@ -48,39 +47,11 @@ export function readLine() {
 }
 
 function processLine(text) {
+
   // readlineAddon.println("you entered: " + text);
-  if(topicSocket.readyState === WebSocket.OPEN){
-    const output = evalCommandLine(text, topicSocket);
-    readlineAddon.println(output);
-  }
+  //FIXME: add pubsub interaction here!
+
+  const output = evalCommandLine(text);
+  readlineAddon.println(output);
   setTimeout(readLine, 1000); // Call readline again in 1s
-}
-
-function generateTopicSocket(socketUrl) {
-  if (topicSocket) {
-    topicSocket.close();
-  }
-
-  topicSocket = new WebSocket(socketUrl);
-
-  topicSocket.onmessage = function (event) {
-    console.debug("WebSocket message received:", event);
-    ev
-    xterm.writeln(event.data);
-  };
-
-  topicSocket.onopen = function (event) {
-    console.debug("WebSocket is open now.");
-  };
-
-  topicSocket.onclose = function (event) {
-    console.debug("WebSocket is closed now.", event);
-  };
-
-  topicSocket.onerror = function (event) {
-    console.log("WebSocket encountered error: ", event);
-    // Handle error appropriately if applicable
-  };
-  
-  return topicSocket;
 }
