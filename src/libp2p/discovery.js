@@ -1,5 +1,5 @@
 import { bootstrap } from '@libp2p/bootstrap'
-import { mdns } from '@libp2p/mdns'
+// import { mdns } from '@libp2p/mdns'
 
 export const bootstrapDiscovery = bootstrap({
     list: [
@@ -11,4 +11,4 @@ export const bootstrapDiscovery = bootstrap({
     ]
   })
 
-export const  mdnsDiscovery = mdns()
+// export const  mdnsDiscovery = mdns()
