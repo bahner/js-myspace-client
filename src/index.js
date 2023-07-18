@@ -1,16 +1,18 @@
-import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import Libp2p from 'libp2p';
-import Gossipsub from 'libp2p-gossipsub';
-import Websockets from 'libp2p-websockets';
-import WebRTCStar from 'libp2p-webrtc-star';
-import Bootstrap from 'libp2p-bootstrap';
+import { Terminal } from 'xterm';
+import { bootstrap } from '@libp2p/bootstrap'
+import { createLibp2p } from 'libp2p'
+// import { filters } from '@libp2p/websockets/filters'
+// import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+// import {noise} from '@chainsafe/libp2p-noise'
+// import { tcp } from '@libp2p/tcp'
+// import { websockets } from '@libp2p/websockets'
 
 async function init() {
   // Initialize libp2p
-  const node = await Libp2p.create({
+  const node = await createLibp2p({
     modules: {
-      transport: [Websockets, WebRTCStar],
+      transport: [tcp()],
       pubsub: Gossipsub,
       peerDiscovery: [Bootstrap]
     },
