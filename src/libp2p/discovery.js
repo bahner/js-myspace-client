@@ -1,4 +1,5 @@
 import { bootstrap } from '@libp2p/bootstrap'
+import { mdns } from '@libp2p/mdns'
 
 export const bootstrapDiscovery = bootstrap({
     list: [
@@ -9,3 +10,5 @@ export const bootstrapDiscovery = bootstrap({
       '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt'
     ]
   })
+
+export const  mdnsDiscovery = mdns()

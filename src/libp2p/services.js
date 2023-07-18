@@ -20,4 +20,4 @@ const kadDHTOptions = {
 
 export const kadDHTService = kadDHT(kadDHTOptions)
 
-export const identifyServiceService = identifyService
+export const identify = identifyService

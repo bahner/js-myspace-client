@@ -8,7 +8,6 @@ import { Terminal } from 'xterm';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import { evalCommandLine } from './commands.js';
 
-let topicSocket;
 let xterm;
 // let attachAddon;
 let fitAddon;
