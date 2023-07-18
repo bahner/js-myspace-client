@@ -1,29 +1,27 @@
 {
   "name": "myspace-client",
   "version": "1.0.0",
-  "description": "Simple myspace client application",
-  "main": "src/main.js",
+  "description": "A Myspace libp2p gossipsub client for the browser.",
+  "main": "src/index.js",
   "scripts": {
-    "start": "http-server public",
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack-dev-server"
   },
-  "type": "module",
-  "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^9.1.0",
-    "events": "^3.3.0",
-    "http-server": "^14.1.1",
-    "libp2p": "^0.45.9",
-    "standard": "^17.1.0",
-    "xterm": "^5.2.1",
-    "xterm-addon-fit": "^0.7.0"
-  },
+  "keywords": [
+    "myspace",
+    "libp2p",
+    "chat",
+    "gossipsub"
+  ],
+  "author": "Lars Bahner",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@babel/core": "^7.22.9",
     "@babel/preset-env": "^7.22.9",
-    "@jridgewell/sourcemap-codec": "^1.4.15",
-    "@rollup/plugin-alias": "^5.0.0",
-    "babel-loader": "^9.1.3",
-    "webpack": "^5.88.1",
-    "webpack-cli": "^5.1.4"
+    "babel-loader": "^9.1.3"
+  },
+  "dependencies": {
+    "xterm": "^5.2.1",
+    "xterm-addon-fit": "^0.7.0"
   }
 }

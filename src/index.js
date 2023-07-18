@@ -1,39 +1,60 @@
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import createLibp2pNode from './gossipsub.js';
+import Libp2p from 'libp2p';
+import Gossipsub from 'libp2p-gossipsub';
+import Websockets from 'libp2p-websockets';
+import WebRTCStar from 'libp2p-webrtc-star';
+import Bootstrap from 'libp2p-bootstrap';
 
-const terminal = new Terminal();
-const fitAddon = new FitAddon();
-
-terminal.loadAddon(fitAddon);
-terminal.open(document.getElementById('terminal-container'));
-fitAddon.fit();
-
-// Load createLibp2pNode from gossipsub.js
-const topic = 'myspace';
-const rendezvousString = 'myspace';
-let node;
-
-// Handle the input field
-const inputField = document.getElementById('input-field');
-inputField.addEventListener('keydown', async function(event) {
-  // Check if the key is the Enter key
-  if (event.key === 'Enter') {
-    // Prevent the form from being submitted
-    event.preventDefault();
-
-    // Initialize the node if it is not yet created
-    if (!node) {
-      node = await createLibp2pNode(topic, rendezvousString);
-      node.pubsub.on(topic, (msg) => {
-        terminal.writeln(msg.data.toString());
-      });
+async function init() {
+  // Initialize libp2p
+  const node = await Libp2p.create({
+    modules: {
+      transport: [Websockets, WebRTCStar],
+      pubsub: Gossipsub,
+      peerDiscovery: [Bootstrap]
+    },
+    config: {
+      peerDiscovery: {
+        bootstrap: {
+          enabled: true,
+          list: ['bootstrapPeerMultiaddress1', 'bootstrapPeerMultiaddress2'] // replace these with actual bootstrap peers
+        }
+      }
     }
+  });
 
-    // Publish the message
-    node.pubsub.publish(topic, Buffer.from(inputField.value));
+  await node.start();
 
-    // Clear the input field
-    inputField.value = '';
-  }
-});
+  // Subscribe to a topic
+  node.pubsub.subscribe('chat', (message) => {
+    const chatMessage = new TextDecoder().decode(message.data);
+    terminal.writeln(chatMessage);
+  });
+
+  // Initialize xterm.js
+  const terminal = new Terminal();
+  const fitAddon = new FitAddon();
+  terminal.loadAddon(fitAddon);
+  terminal.open(document.getElementById('terminal'));
+  fitAddon.fit();
+
+  // Implement basic input and output functionality
+  let buffer = '';
+  terminal.onKey(({ key }) => {
+    if (key === '\r') { // user pressed enter
+      node.pubsub.publish('chat', new TextEncoder().encode(buffer));
+      buffer = '';
+    } else if (key === '\u007F') { // user pressed backspace
+      if (buffer.length > 0) {
+        buffer = buffer.slice(0, buffer.length - 1);
+      }
+    } else {
+      buffer += key;
+    }
+    terminal.write(key);
+  });
+}
+
+// Invoke the function to initialize the chat client
+init().catch(console.error);
